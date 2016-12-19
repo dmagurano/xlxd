@@ -1,9 +1,10 @@
 CC=g++
-CFLAGS=-c -std=c++11 -pthread
-LDFLAGS=-std=c++11 -pthread
+CFLAGS=-c -std=c++11 -pthread -g
+LDFLAGS=-std=c++11 -pthread -g
 SOURCES=$(wildcard *.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=xlxd
+RM=rm -f
 
 all: $(SOURCES) $(EXECUTABLE)
 
@@ -14,7 +15,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm *.o
+	$(RM) *.o
 
 install:
 	mkdir -p /xlxd

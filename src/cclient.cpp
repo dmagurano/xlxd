@@ -76,8 +76,7 @@ void CClient::Alive(void)
 bool CClient::operator ==(const CClient &client) const
 {
     return ((client.m_Callsign == m_Callsign) &&
-            (client.m_Ip == m_Ip) &&
-            (client.m_ReflectorModule == m_ReflectorModule));
+            (client.m_Ip == m_Ip));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

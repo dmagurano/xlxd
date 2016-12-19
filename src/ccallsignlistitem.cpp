@@ -42,26 +42,8 @@ CCallsignListItem::CCallsignListItem(const CCallsign &callsign, const CIp &ip, c
     m_Ip = ip;
     if ( modules != NULL )
     {
-        ::memset(m_Modules, 0, sizeof(m_Modules));
-        if ( modules[0] == '*' )
-        {
-            for ( char i = 0; i < NB_OF_MODULES; i++ )
-            {
-                m_Modules[i] = 'A' + i;
-            }
-        }
-        else
-        {
-            int n = MIN((int)::strlen(modules), sizeof(m_Modules)-1);
-            int j = 0;
-            for ( int i = 0; i < n; i++ )
-            {
-                if ( (modules[i] - 'A') < NB_OF_MODULES )
-                {
-                    m_Modules[j++] = modules[i];
-                }
-            }
-        }
+        :: memset(m_Modules, 0, sizeof(m_Modules));
+        ::memcpy(m_Modules, modules, MIN(strlen(modules), sizeof(m_Modules)-1));
     }
 }
 
@@ -72,26 +54,8 @@ CCallsignListItem::CCallsignListItem(const CCallsign &callsign, const char *url,
     m_Ip = CIp(m_szUrl);
     if ( modules != NULL )
     {
-        ::memset(m_Modules, 0, sizeof(m_Modules));
-        if ( modules[0] == '*' )
-        {
-            for ( char i = 0; i < NB_OF_MODULES; i++ )
-            {
-                m_Modules[i] = 'A' + i;
-            }
-        }
-        else
-        {
-            int n = MIN((int)::strlen(modules), sizeof(m_Modules)-1);
-            int j = 0;
-            for ( int i = 0; i < n; i++ )
-            {
-                if ( (modules[i] - 'A') < NB_OF_MODULES )
-                {
-                    m_Modules[j++] = modules[i];
-                }
-            }
-        }
+        :: memset(m_Modules, 0, sizeof(m_Modules));
+        ::memcpy(m_Modules, modules, MIN(strlen(modules), sizeof(m_Modules)-1));
     }
 }
 
@@ -112,9 +76,9 @@ bool CCallsignListItem::HasSameCallsign(const CCallsign &callsign) const
     return m_Callsign.HasSameCallsign(callsign);
 }
 
-bool CCallsignListItem::HasSameCallsignWithWildcard(const CCallsign &callsign) const
+bool CCallsignListItem::HasSameCallsignWithWidlcard(const CCallsign &callsign) const
 {
-    return m_Callsign.HasSameCallsignWithWildcard(callsign);
+    return m_Callsign.HasSameCallsignWithWidlcard(callsign);
 }
 
 bool CCallsignListItem::HasModuleListed(char module) const

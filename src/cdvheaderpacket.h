@@ -83,7 +83,7 @@ public:
     const CCallsign &GetUrCallsign(void) const      { return m_csUR; }
     const CCallsign &GetRpt1Callsign(void) const    { return m_csRPT1; }
     const CCallsign &GetRpt2Callsign(void) const    { return m_csRPT2; }
-    const CCallsign &GetMyCallsign(void) const      { return m_csMY; }
+     CCallsign &GetMyCallsign(void)       { return m_csMY; }
     
     // get modules
     char GetUrModule(void) const                    { return m_csUR.GetModule(); }

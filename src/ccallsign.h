@@ -42,6 +42,7 @@ public:
     CCallsign();
     CCallsign(const char *);
     CCallsign(const CCallsign &);
+	
     
     // destructor
     virtual ~CCallsign() {};
@@ -55,6 +56,7 @@ public:
     void SetCallsign(const char *);
     void SetCallsign(const uint8 *, int);
     void SetModule(char);
+	void SetModule2(const char *);
     void SetSuffix(const char *);
     void SetSuffix(const uint8 *, int);
     
@@ -65,11 +67,12 @@ public:
     void GetCallsign(uint8 *) const;
     void GetCallsignString(char *) const;
     void GetSuffix(uint8 *) const;
+	void GetModule2(char *) const;
     char GetModule(void) const     { return m_Module; }
     
     // compare
     bool HasSameCallsign(const CCallsign &) const;
-    bool HasSameCallsignWithWildcard(const CCallsign &) const;
+    bool HasSameCallsignWithWidlcard(const CCallsign &) const;
     bool HasSameModule(const CCallsign &) const;
    
     // operators
@@ -87,6 +90,7 @@ protected:
     char    m_Callsign[CALLSIGN_LEN];
     char    m_Suffix[CALLSUFFIX_LEN];
     char    m_Module;
+	char    m_Module2[1];
     char	m_sz[CALLSIGN_LEN+CALLSUFFIX_LEN+5];
 };
 

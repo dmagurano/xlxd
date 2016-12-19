@@ -85,12 +85,11 @@ void CClients::AddClient(CClient *client)
         // and append
         m_Clients.push_back(client);
         std::cout << "New client " << client->GetCallsign() << " at " << client->GetIp() 
-                  << " added with protocol " << client->GetProtocol()
-                  << " on module " << client->GetReflectorModule() << std::endl;
+        	<< " added with protocol " << client->GetProtocol()  << std::endl;
         // notify
         g_Reflector.OnClientsChanged();
     }
-}
+ }
 
 void CClients::RemoveClient(CClient *client)
 {    
@@ -106,8 +105,7 @@ void CClients::RemoveClient(CClient *client)
             {
                 // remove it
                 std::cout << "Client " << m_Clients[i]->GetCallsign() << " at " << m_Clients[i]->GetIp()
-                          << " removed with protocol " << client->GetProtocol()
-                          << " on module " << client->GetReflectorModule() << std::endl;
+                          << " removed" << std::endl;
                 delete m_Clients[i];
                 m_Clients.erase(m_Clients.begin()+i);
                 found = true;
@@ -177,25 +175,6 @@ CClient *CClients::FindClient(const CIp &Ip, int Protocol)
     return client;
 }
 
-CClient *CClients::FindClient(const CIp &Ip, int Protocol, char ReflectorModule)
-{
-    CClient *client = NULL;
-    
-    // find client
-    for ( int i = 0; (i < m_Clients.size()) && (client == NULL); i++ )
-    {
-        if ( (m_Clients[i]->GetIp() == Ip)  &&
-             (m_Clients[i]->GetReflectorModule() == ReflectorModule) &&
-             (m_Clients[i]->GetProtocol() == Protocol) )
-        {
-            client = m_Clients[i];
-        }
-    }
-    
-    // done
-    return client;
-}
-
 CClient *CClients::FindClient(const CCallsign &Callsign, const CIp &Ip, int Protocol)
 {
     CClient *client = NULL;
@@ -252,6 +231,7 @@ CClient *CClients::FindClient(const CCallsign &Callsign, int Protocol)
     // done
     return client;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // iterate on clients

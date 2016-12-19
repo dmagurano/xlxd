@@ -57,8 +57,9 @@ public:
     CClient         *GetOwnerClient(void)           { return m_OwnerClient; }
     bool            IsExpired(void) const           { return (m_LastPacketTime.DurationSinceNow() > STREAM_TIMEOUT); }
     uint16          GetStreamId(void) const         { return m_uiStreamId; }
-    const CCallsign &GetUserCallsign(void) const    { return m_DvHeader.GetMyCallsign(); }
-
+     CCallsign &GetUserCallsign(void)     { return m_DvHeader.GetMyCallsign(); }
+	
+	
 protected:
     // data
     bool                m_bOpen;

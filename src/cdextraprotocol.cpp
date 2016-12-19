@@ -88,7 +88,7 @@ void CDextraProtocol::Task(void)
             //std::cout << "DExtra DV header:"  << std::endl;
             
             // callsign muted?
-            if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DEXTRA, Header->GetRpt2Module()) )
+            if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DEXTRA) )
             {
                 // handle it
                 OnDvHeaderPacketIn(Header, Ip);
@@ -363,7 +363,7 @@ bool CDextraProtocol::IsValidConnectPacket(const CBuffer &Buffer, CCallsign *cal
         {
             *revision = 1;
         }
-        else if ( callsign->HasSameCallsignWithWildcard(CCallsign("XRF*")) )
+        else if ( callsign->HasSameCallsignWithWidlcard(CCallsign("XRF*")) )
         {
             *revision = 2;
         }

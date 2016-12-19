@@ -91,20 +91,26 @@ void CDcsProtocol::Task(void)
             //std::cout << "DCS DV packet" << std::endl;
             
             // callsign muted?
-            if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DCS, Header->GetRpt2Module()) )
+            if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DCS) )
             {
                 // handle it
-                OnDvHeaderPacketIn(Header, Ip);
-
-                if ( !Frame->IsLastPacket() )
+                if ( !OnDvHeaderPacketIn(Header, Ip) )
                 {
-                    //std::cout << "DCS DV frame" << std::endl;
-                    OnDvFramePacketIn(Frame);
+                    if ( !Frame->IsLastPacket() )
+                    {
+                        //std::cout << "DCS DV frame" << std::endl;
+                        OnDvFramePacketIn(Frame);
+                    }
+                    else
+                    {
+                        //std::cout << "DCS DV last frame" << std::endl;
+                        OnDvLastFramePacketIn((CDvLastFramePacket *)Frame);
+                    }
                 }
                 else
                 {
-                   //std::cout << "DCS DV last frame" << std::endl;
-                   OnDvLastFramePacketIn((CDvLastFramePacket *)Frame);
+                    //std::cout << "DCS DV header:" << std::endl << *Header << std::endl;
+                    delete Frame;
                 }
             }
             else

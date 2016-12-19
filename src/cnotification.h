@@ -36,7 +36,6 @@
 #define NOTIFICATION_USERS          2
 #define NOTIFICATION_STREAM_OPEN    3
 #define NOTIFICATION_STREAM_CLOSE   4
-#define NOTIFICATION_PEERS          5
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // class

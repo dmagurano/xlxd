@@ -28,7 +28,6 @@
 
 #include "ctimepoint.h"
 #include "cdextraprotocol.h"
-#include "cclients.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +65,7 @@ protected:
     
     // packet decoding helpers
     bool                IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
-    bool                IsValidConnectPacket(const CBuffer &, CCallsign *, char *, uint8 *, uint8 *, uint8 *);
+    bool                IsValidConnectPacket(const CBuffer &, CCallsign *, char *);
     bool                IsValidDisconnectPacket(const CBuffer &, CCallsign *);
     bool                IsValidAckPacket(const CBuffer &, CCallsign *, char *);
     bool                IsValidNackPacket(const CBuffer &, CCallsign *);
@@ -81,7 +80,6 @@ protected:
 protected:
     // time
     CTimePoint          m_LastKeepaliveTime;
-    CTimePoint          m_LastPeersLinkTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

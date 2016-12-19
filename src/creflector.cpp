@@ -24,6 +24,7 @@
 
 #include "main.h"
 #include <string.h>
+#include <list>
 #include "creflector.h"
 #include "cgatekeeper.h"
 
@@ -200,10 +201,14 @@ CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, CClient *client
                 // report
                 std::cout << "Opening stream on module " << module << " for client " << client->GetCallsign()
                           << " with sid " << DvHeader->GetStreamId() << std::endl;
-
+				
+				
+				
+				stream->GetUserCallsign().SetModule2(&module);
+				
                 // notify
-                g_Reflector.OnStreamOpen(stream->GetUserCallsign());
-
+                  g_Reflector.OnStreamOpen(stream->GetUserCallsign());
+					
             }
             // unlock now
             stream->Unlock();
@@ -349,24 +354,29 @@ void CReflector::XmlReportThread(CReflector *This)
             // and close file
             xmlFile.close();
         }
-#ifndef NO_ERROR_ON_XML_OPEN_FAIL
         else
         {
             std::cout << "Failed to open " << XML_PATH  << std::endl;
         }
-#endif
 
         // and wait a bit
         CTimePoint::TaskSleepFor(XML_UPDATE_PERIOD * 1000);
     }
 }
 
+#define MAX_IP_SIZE 100
+
 void CReflector::JsonReportThread(CReflector *This)
 {
-    CUdpSocket Socket;
+    
+	
+	CUdpSocket Socket;
     CBuffer    Buffer;
     CIp        Ip;
     bool       bOn;
+	std::list<CIp>  Ips;
+	
+	
 
     // init variable
     bOn = false;
@@ -381,9 +391,20 @@ void CReflector::JsonReportThread(CReflector *This)
             if ( Socket.Receive(&Buffer, &Ip, 50) != -1 )
             {
                 // check verb
-                if ( Buffer.Compare((uint8 *)"hello", 5) == 0 )
+                if ( Buffer.Compare((uint8 *)"startm", 6) == 0 )
                 {
                     std::cout << "Monitor socket connected with " << Ip << std::endl;
+					
+					Ips.push_front(Ip);
+					
+					// sort list by descending time (first is youngest)
+					//std::reverse(Ips.begin(), Ips.end());
+					
+					// if list size too big, remove oldest
+					if ( Ips.size() > (MAX_IP_SIZE) )
+					{
+						Ips.pop_back();
+					}
 
                     // connected
                     bOn = true;
@@ -397,11 +418,21 @@ void CReflector::JsonReportThread(CReflector *This)
                 }
                 else if ( Buffer.Compare((uint8 *)"bye", 3) == 0 )
                 {
-                    std::cout << "Monitor socket disconnected" << std::endl;
+                    std::cout << "Monitor socket disconnected from: " << Ip << std::endl;
+					
+					Ips.remove(Ip);
 
-                    // diconnected
-                    bOn = false;
+                    // disconnected
+                    //bOn = false;
                 }
+				else if ( Buffer.Compare((uint8 *)"list", 4) == 0 )
+				{	
+					std::cout << "List of Ips connected on Monitor" << std::endl;
+					for (std::list<CIp>::iterator it=Ips.begin(); it != Ips.end(); ++it)
+					{
+						std::cout << *it << std::endl;
+					}	
+				}
             }
 
             // any notifications ?
@@ -414,37 +445,64 @@ void CReflector::JsonReportThread(CReflector *This)
                 This->m_Notifications.pop();
             }
             This->m_Notifications.Unlock();
+			
+			//reset IP list at 3:00 AM
+			
+			std::time_t t = std::time(NULL);
+			char mbstr[100];
+			if (std::strftime(mbstr, sizeof(mbstr), "%T", std::localtime(&t))) 
+			{
+				if( strcmp(mbstr, "03:00:00") == 0 )
+				{
+					Ips.clear();
+					std::cout << "IP LIST RESET" << std::endl;
+				}
+			}
+			
 
-            // handle it
-            if ( bOn )
-            {
-                switch ( notification.GetId() )
-                {
-                    case NOTIFICATION_CLIENTS:
-                    case NOTIFICATION_PEERS:
-                        //std::cout << "Monitor updating nodes table" << std::endl;
-                        This->SendJsonNodesObject(Socket, Ip);
-                        break;
-                    case NOTIFICATION_USERS:
-                        //std::cout << "Monitor updating stations table" << std::endl;
-                        This->SendJsonStationsObject(Socket, Ip);
-                        break;
-                    case NOTIFICATION_STREAM_OPEN:
-                        //std::cout << "Monitor notify station " << notification.GetCallsign() << "going ON air" << std::endl;
-                        This->SendJsonStationsObject(Socket, Ip);
-                        This->SendJsonOnairObject(Socket, Ip, notification.GetCallsign());
-                        break;
-                    case NOTIFICATION_STREAM_CLOSE:
-                        //std::cout << "Monitor notify station " << notification.GetCallsign() << "going OFF air" << std::endl;
-                        This->SendJsonOffairObject(Socket, Ip, notification.GetCallsign());
-                        break;
-                   case NOTIFICATION_NONE:
-                    default:
-                        // nothing to do, just sleep a bit
-                        CTimePoint::TaskSleepFor(250);
-                        break;
-                }
-            }
+					// handle it
+					if ( bOn )
+					{
+						switch ( notification.GetId() )
+						{
+							case NOTIFICATION_CLIENTS:
+								//std::cout << "Monitor updating nodes table" << std::endl;
+								for (std::list<CIp>::iterator it=Ips.begin(); it != Ips.end(); ++it)
+								{
+									This->SendJsonNodesObject(Socket, *it);
+								}	
+								break;
+							case NOTIFICATION_USERS:
+								//std::cout << "Monitor updating stations table" << std::endl;
+								for (std::list<CIp>::iterator it=Ips.begin(); it != Ips.end(); ++it)
+								{
+									This->SendJsonStationsObject(Socket, *it);
+								}
+								break;
+							case NOTIFICATION_STREAM_OPEN:
+								//std::cout << "Monitor notify station " << notification.GetCallsign() << "going ON air" << std::endl;
+								std::cout << "Monitor notify station ON AIR - " << Ips.size() << " clients" << std::endl;
+								for (std::list<CIp>::iterator it=Ips.begin(); it != Ips.end(); ++it)
+								{
+									//This->SendJsonStationsObject(Socket, *it);
+									This->SendJsonOnairObject(Socket, *it, notification.GetCallsign());
+								}
+								break;
+							case NOTIFICATION_STREAM_CLOSE:
+								//std::cout << "Monitor notify station " << notification.GetCallsign() << "going OFF air" << std::endl;
+								for (std::list<CIp>::iterator it=Ips.begin(); it != Ips.end(); ++it)
+								{
+									This->SendJsonOffairObject(Socket, *it, notification.GetCallsign());
+								}
+								break;
+						   case NOTIFICATION_NONE:
+							default:
+								// nothing to do, just sleep a bit
+								CTimePoint::TaskSleepFor(250);
+								break;
+						}
+					}
+				
         }
     }
     else
@@ -455,15 +513,6 @@ void CReflector::JsonReportThread(CReflector *This)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // notifications
-
-void CReflector::OnPeersChanged(void)
-{
-    CNotification notification(NOTIFICATION_PEERS);
-    
-    m_Notifications.Lock();
-    m_Notifications.push(notification);
-    m_Notifications.Unlock();
-}
 
 void CReflector::OnClientsChanged(void)
 {
@@ -554,20 +603,23 @@ void CReflector::WriteXmlFile(std::ofstream &xmlFile)
     // linked peers
     xmlFile << "<" << m_Callsign << "linked peers>" << std::endl;
     // lock
-    CPeers *peers = GetPeers();
-    // iterate on peers
-    for ( int i = 0; i < peers->GetSize(); i++ )
+    CClients *clients = GetClients();
+    // iterate on clients
+    for ( int i = 0; i < clients->GetSize(); i++ )
     {
-        peers->GetPeer(i)->WriteXml(xmlFile);
+        if ( clients->GetClient(i)->IsPeer() )
+        {
+            clients->GetClient(i)->WriteXml(xmlFile);
+        }
     }
     // unlock
-    ReleasePeers();
+    ReleaseClients();
     xmlFile << "</" << m_Callsign << "linked peers>" << std::endl;
     
     // linked nodes
     xmlFile << "<" << m_Callsign << "linked nodes>" << std::endl;
     // lock
-    CClients *clients = GetClients();
+    clients = GetClients();
     // iterate on clients
     for ( int i = 0; i < clients->GetSize(); i++ )
     {
@@ -684,10 +736,12 @@ void CReflector::SendJsonOnairObject(CUdpSocket &Socket, CIp &Ip, const CCallsig
 {
     char Buffer[128];
     char sz[CALLSIGN_LEN+1];
+	char mod[1];
 
     // onair object
     Callsign.GetCallsignString(sz);
-    ::sprintf(Buffer, "{\"onair\":\"%s\"}", sz);
+	Callsign.GetModule2(mod);
+    ::sprintf(Buffer, "{\"onair\":\"%s\", \"module\":\"%c\"}", sz, mod[0]);
 
     // and send
     //std::cout << Buffer << std::endl;

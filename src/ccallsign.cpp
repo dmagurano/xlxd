@@ -35,6 +35,7 @@ CCallsign::CCallsign()
     // blank all
     ::memset(m_Callsign, ' ', sizeof(m_Callsign));
     ::memset(m_Suffix, ' ', sizeof(m_Suffix));
+	::memset(m_Module2, ' ', sizeof(m_Module2));
     m_Module = ' ';
 }
 
@@ -43,6 +44,7 @@ CCallsign::CCallsign(const char *sz)
     // blank all
     ::memset(m_Callsign, ' ', sizeof(m_Callsign));
     ::memset(m_Suffix, ' ', sizeof(m_Suffix));
+	::memset(m_Module2, ' ', sizeof(m_Module2));
     m_Module = ' ';
     // and copy
     ::memcpy(m_Callsign, sz, MIN(strlen(sz), sizeof(m_Callsign)-1));
@@ -56,8 +58,11 @@ CCallsign::CCallsign(const CCallsign &callsign)
 {
     ::memcpy(m_Callsign, callsign.m_Callsign, sizeof(m_Callsign));
     ::memcpy(m_Suffix, callsign.m_Suffix, sizeof(m_Suffix));
+	::memcpy(m_Module2, callsign.m_Module2, sizeof(m_Module2));
     m_Module = callsign.m_Module;
 }
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -148,6 +153,12 @@ void CCallsign::SetModule(char c)
     m_Module = c;
 }
 
+void CCallsign::SetModule2(const char *module2)
+{
+	::memset(m_Module2, ' ', sizeof(m_Module2));
+    ::memcpy(m_Module2, module2, sizeof(m_Module2));
+}
+
 
 void CCallsign::SetSuffix(const char *sz)
 {
@@ -201,6 +212,10 @@ void CCallsign::GetSuffix(uint8 *buffer) const
     ::memcpy(buffer, m_Suffix, sizeof(m_Suffix));
 }
 
+void CCallsign::GetModule2(char *buffer) const
+{
+    ::memcpy(buffer, m_Module2, sizeof(m_Module2));
+}
 ////////////////////////////////////////////////////////////////////////////////////////
 // compare
 
@@ -209,7 +224,7 @@ bool CCallsign::HasSameCallsign(const CCallsign &Callsign) const
     return (::memcmp(m_Callsign, Callsign.m_Callsign, sizeof(m_Callsign)) == 0);
 }
 
-bool CCallsign::HasSameCallsignWithWildcard(const CCallsign &callsign) const
+bool CCallsign::HasSameCallsignWithWidlcard(const CCallsign &callsign) const
 {
     bool same = true;
     bool done = false;

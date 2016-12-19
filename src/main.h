@@ -47,18 +47,17 @@
 // version -----------------------------------------------------
 
 #define VERSION_MAJOR               1
-#define VERSION_MINOR               4
-#define VERSION_REVISION            0
+#define VERSION_MINOR               3
+#define VERSION_REVISION            8
 
 // global ------------------------------------------------------
 
 #define RUN_AS_DAEMON
 #define JSON_MONITOR
-//#define NO_ERROR_ON_XML_OPEN_FAIL
 
 // reflector ---------------------------------------------------
 
-#define NB_OF_MODULES               8
+#define NB_OF_MODULES               26
 
 // protocols ---------------------------------------------------
 
@@ -90,7 +89,6 @@
 #define XLX_PORT                    10002                           // UDP port
 #define XLX_KEEPALIVE_PERIOD        1                               // in seconds
 #define XLX_KEEPALIVE_TIMEOUT       (XLX_KEEPALIVE_PERIOD*30)       // in seconds
-#define XLX_RECONNECT_PERIOD        5                               // in seconds
 
 // xml & json reporting -----------------------------------------
 

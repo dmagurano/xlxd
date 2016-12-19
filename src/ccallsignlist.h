@@ -51,8 +51,7 @@ public:
     bool NeedReload(void);
 
     // compare
-    bool IsCallsignListedWithWildcard(const CCallsign &) const;
-    bool IsCallsignListedWithWildcard(const CCallsign &, char) const;
+    bool IsCallsignListed(const CCallsign &) const;
     bool IsCallsignListed(const CCallsign &, char) const;
     bool IsCallsignListed(const CCallsign &, char*) const;
 
